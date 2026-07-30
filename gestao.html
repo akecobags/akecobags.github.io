@@ -486,9 +486,10 @@ body{font-family:'Inter',sans-serif;color:var(--tx);overflow-x:hidden;
     <div class="fg"><label>Nome do cliente</label>
       <input id="pedido-cliente-nome" list="clientes-datalist" placeholder="Digite o nome (novo ou já cadastrado)" oninput="checkClienteExistente()"/>
       <datalist id="clientes-datalist"></datalist>
+      <div id="cliente-match-aviso" style="font-size:.72rem;font-weight:600;margin-top:.3rem"></div>
     </div>
-    <div class="fg" style="margin-top:-.5rem"><label>WhatsApp (opcional)</label>
-      <input id="pedido-cliente-fone" placeholder="(47) 99999-9999"/>
+    <div class="fg" style="margin-top:-.2rem"><label>WhatsApp (opcional, ajuda a reconhecer o cliente)</label>
+      <input id="pedido-cliente-fone" placeholder="(47) 99999-9999" oninput="checkClienteExistente()"/>
     </div>
 
     <div class="fg">
@@ -800,8 +801,15 @@ async function loadAllData(){
       estoque      = results[3].exists ? results[3].data().items : [];
       financeiro   = results[4].exists ? results[4].data().items : [];
       fornecedores = results[5].exists ? results[5].data().items : [];
-      const cfgDoc = await db.collection('ak_ecobags').doc('config').get();
-      if(cfgDoc.exists) config = Object.assign({metaMensal:3000}, cfgDoc.data());
+
+      // Busca da config (meta mensal) isolada: se falhar, NÃO pode apagar os dados acima que já carregaram certinho
+      try{
+        const cfgDoc = await db.collection('ak_ecobags').doc('config').get();
+        if(cfgDoc.exists) config = Object.assign({metaMensal:3000}, cfgDoc.data());
+      }catch(cfgErr){
+        console.error('Erro ao carregar config (não afeta os outros dados):', cfgErr);
+      }
+
       // Escuta mudanças em tempo real (sincroniza entre aparelhos)
       names.forEach(n => {
         db.collection('ak_ecobags').doc(n).onSnapshot(doc => {
@@ -814,13 +822,13 @@ async function loadAllData(){
           if(n==='financeiro') financeiro = items;
           if(n==='fornecedores') fornecedores = items;
           renderAll();
-        });
+        }, err => console.error(`Erro no listener de ${n}:`, err));
       });
       db.collection('ak_ecobags').doc('config').onSnapshot(doc => {
         if(!doc.exists) return;
         config = Object.assign({metaMensal:3000}, doc.data());
         renderDashboard();
-      });
+      }, err => console.error('Erro no listener de config:', err));
       return;
     }catch(e){
       console.error('Erro ao carregar do Firebase, usando dados locais:', e);
@@ -1651,12 +1659,40 @@ function renderClientesDatalist(){
 
 function checkClienteExistente(){
   const nome = document.getElementById('pedido-cliente-nome').value.trim();
-  const existente = clientes.find(c=>c.nome.toLowerCase()===nome.toLowerCase());
+  const foneDigitado = document.getElementById('pedido-cliente-fone').value.replace(/\D/g,'');
+  const aviso = document.getElementById('cliente-match-aviso');
+
+  // 1) Tenta achar por telefone (mais confiável — não depende de digitar o nome certinho)
+  let existente = foneDigitado.length>=8 ? clientes.find(c=>(c.fone||'').replace(/\D/g,'')===foneDigitado) : null;
+  // 2) Senão, tenta por nome exato (ignorando maiúsculas/minúsculas e espaços extras)
+  if(!existente && nome){
+    existente = clientes.find(c=>c.nome.trim().toLowerCase()===nome.toLowerCase());
+  }
+
   if(existente){
     document.getElementById('pedido-cliente-id-existente').value = existente.id;
-    document.getElementById('pedido-cliente-fone').value = existente.fone || '';
+    if(!document.getElementById('pedido-cliente-fone').value) document.getElementById('pedido-cliente-fone').value = existente.fone || '';
+    if(!nome) document.getElementById('pedido-cliente-nome').value = existente.nome;
+    aviso.textContent = `✅ Cliente já cadastrado: ${existente.nome}`;
+    aviso.style.color = 'var(--verde)';
   } else {
     document.getElementById('pedido-cliente-id-existente').value = '';
+    if(nome){
+      // Avisa se existe um nome parecido, pra evitar duplicar por erro de digitação
+      const parecido = clientes.find(c=>{
+        const a=c.nome.trim().toLowerCase(), b=nome.toLowerCase();
+        return a!==b && (a.includes(b) || b.includes(a));
+      });
+      if(parecido){
+        aviso.textContent = `⚠️ Já existe um cliente parecido: "${parecido.nome}" — confira se não é a mesma pessoa`;
+        aviso.style.color = 'var(--am)';
+      } else {
+        aviso.textContent = '🆕 Será cadastrado como cliente novo';
+        aviso.style.color = 'var(--mu)';
+      }
+    } else {
+      aviso.textContent = '';
+    }
   }
 }
 
