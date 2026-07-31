@@ -60,6 +60,7 @@ body::before{content:'';position:fixed;inset:0;background-image:radial-gradient(
 .prod-nome{font-family:'Playfair Display',serif;font-size:.95rem;font-weight:700;color:var(--tx);line-height:1.3}
 .prod-det{font-size:.7rem;color:var(--mu);letter-spacing:.2px}
 .prod-medidas{font-size:.68rem;color:var(--gold-dk);font-weight:600;letter-spacing:.2px}
+.prod-apartir{font-size:.62rem;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.5px}
 .prod-preco{font-size:1.05rem;font-weight:800;color:var(--verde-deep);margin-top:.5rem;padding-top:.5rem;border-top:1px solid var(--creme-d)}
 .qtd-row{display:flex;align-items:center;gap:.4rem;margin-top:.5rem}
 .qtd-row label{font-size:.66rem;color:var(--mu);font-weight:600;text-transform:uppercase;letter-spacing:.5px}
@@ -219,7 +220,7 @@ function renderCatalogo(produtos){
       <div class="prod-nome">${escAttr(p.nome)}</div>
       <div class="prod-det">${escAttr(p.det)}</div>
       ${medidas ? `<div class="prod-medidas">${escAttr(medidas)}</div>` : ''}
-      <div class="prod-preco">R$ ${precoTxt}/un.</div>
+      <div class="prod-preco">${p.precoAPartir?'<span class="prod-apartir">A partir de</span> ':''}R$ ${precoTxt}/un.</div>
       <div class="qtd-row"><label>Qtd.</label><div class="qtd-ctrl"><button class="qb" onclick="chQ(this,-1)">−</button><input class="qn" value="1" readonly/><button class="qb" onclick="chQ(this,1)">+</button></div></div>
       <button class="btn-add" onclick="addCart(this)">🛒 Adicionar</button>
     </div>
