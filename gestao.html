@@ -472,6 +472,10 @@ body{font-family:'Inter',sans-serif;color:var(--tx);overflow-x:hidden;
       <div class="fg"><label>Tamanho (opcional)</label><input id="prod-tamanho" placeholder="Ex: 40x40cm"/></div>
       <div class="fg"><label>Largura da alça (opcional)</label><input id="prod-alca" placeholder="Ex: 2,5cm"/></div>
     </div>
+    <div class="fg" style="flex-direction:row;align-items:center;gap:.5rem">
+      <input type="checkbox" id="prod-preco-apartir" style="width:auto"/>
+      <label style="text-transform:none;font-weight:600;color:var(--tx)">Mostrar como "A partir de" (preço pode variar)</label>
+    </div>
     <div class="fg"><label>Disponibilidade</label>
       <select id="prod-status"><option value="disp">✅ Disponível (pronta entrega)</option><option value="person">🎨 Personalizável</option><option value="esg">🔴 Esgotado</option></select>
     </div>
@@ -1196,6 +1200,7 @@ function openProdModal(id){
     document.getElementById('prod-det').value = p.det||'';
     document.getElementById('prod-tamanho').value = p.tamanho||'';
     document.getElementById('prod-alca').value = p.alca||'';
+    document.getElementById('prod-preco-apartir').checked = !!p.precoAPartir;
     document.getElementById('prod-status').value = p.status;
     if(p.foto){
       prodPhotoData = p.foto;
@@ -1211,6 +1216,7 @@ function openProdModal(id){
     document.getElementById('prod-det').value='';
     document.getElementById('prod-tamanho').value='';
     document.getElementById('prod-alca').value='';
+    document.getElementById('prod-preco-apartir').checked = false;
     document.getElementById('prod-status').value='disp';
   }
   openModal('modal-prod');
@@ -1252,6 +1258,7 @@ async function saveProduto(){
     det: document.getElementById('prod-det').value.trim(),
     tamanho: document.getElementById('prod-tamanho').value.trim(),
     alca: document.getElementById('prod-alca').value.trim(),
+    precoAPartir: document.getElementById('prod-preco-apartir').checked,
     status: document.getElementById('prod-status').value,
     foto: prodPhotoData
   };
