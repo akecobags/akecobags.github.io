@@ -50,7 +50,7 @@ body{font-family:'Inter',sans-serif;color:var(--tx);overflow-x:hidden;
 .app.on{display:flex}
 
 /* Sidebar (desktop) / bottom nav (mobile) */
-.sidebar{background:linear-gradient(180deg,var(--verde-dark),var(--verde-deep));border-right:1px solid rgba(0,0,0,.2);width:224px;flex-shrink:0;padding:1.4rem 1rem;display:flex;flex-direction:column;gap:.3rem;position:sticky;top:0;height:100vh}
+.sidebar{background:linear-gradient(180deg,var(--verde-dark),var(--verde-deep));border-right:1px solid rgba(0,0,0,.2);width:224px;flex-shrink:0;padding:1.4rem 1rem;display:flex;flex-direction:column;gap:.3rem;position:sticky;top:0;height:100vh;overflow-y:auto}
 .side-logo{display:flex;align-items:center;gap:.6rem;padding:.4rem .5rem 1.3rem}
 .side-logo img{width:38px;height:38px;border-radius:50%;object-fit:cover;box-shadow:0 0 0 3px rgba(166,217,74,.25)}
 .side-logo span{font-family:'Playfair Display',serif;font-weight:700;font-size:1.08rem;color:var(--wh)}
@@ -183,6 +183,7 @@ body{font-family:'Inter',sans-serif;color:var(--tx);overflow-x:hidden;
 .tag-esgotado{position:absolute}
 .pc-status{font-size:.65rem;font-weight:700;padding:1px 7px;border-radius:10px;display:inline-block;margin-top:.3rem}
 .pc-status.disp{background:var(--verde-xc);color:var(--verde)}
+.pc-status.person{background:#fdf1da;color:#b7791f}
 .pc-status.esg{background:var(--rd-cl);color:var(--rd)}
 
 .link-copy{display:flex;gap:.5rem;background:var(--creme);border-radius:11px;padding:.6rem .8rem;align-items:center;font-size:.78rem;overflow-x:auto;white-space:nowrap}
@@ -468,7 +469,7 @@ body{font-family:'Inter',sans-serif;color:var(--tx);overflow-x:hidden;
     </div>
     <div class="fg"><label>Descrição / detalhe</label><input id="prod-det" placeholder="Ex: 7x10cm • Mín. 6 un."/></div>
     <div class="fg"><label>Disponibilidade</label>
-      <select id="prod-status"><option value="disp">✅ Disponível</option><option value="esg">🔴 Esgotado</option></select>
+      <select id="prod-status"><option value="disp">✅ Disponível (pronta entrega)</option><option value="person">🎨 Personalizável</option><option value="esg">🔴 Esgotado</option></select>
     </div>
     <div class="modal-btns">
       <button class="btn btn-outline" onclick="closeModal('modal-prod')">Cancelar</button>
@@ -1264,9 +1265,16 @@ async function delProduto(id){
   renderDashboard();
 }
 
+function statusProdutoLabel(status){
+  const map = {disp:'✅ Disponível', person:'🎨 Personalizável', esg:'🔴 Esgotado'};
+  return map[status] || map.disp;
+}
+
 async function toggleProdStatus(id){
   const p = produtos.find(x=>x.id===id);
-  p.status = p.status==='disp' ? 'esg' : 'disp';
+  const ordem = ['disp','person','esg'];
+  const atual = ordem.indexOf(p.status);
+  p.status = ordem[(atual+1) % ordem.length] || 'disp';
   await saveCollection('produtos', produtos);
   renderSite();
 }
@@ -1290,7 +1298,7 @@ function renderSite(){
         <div class="pc-name">${p.nome}</div>
         <div style="font-size:.72rem;color:var(--mu)">${p.det||''}</div>
         <div class="pc-price">${fmtMoney(p.preco)}</div>
-        <span class="pc-status ${p.status==='disp'?'disp':'esg'}" onclick="toggleProdStatus('${p.id}')" style="cursor:pointer">${p.status==='disp'?'✅ Disponível':'🔴 Esgotado'}</span>
+        <span class="pc-status ${p.status}" onclick="toggleProdStatus('${p.id}')" style="cursor:pointer" title="Clique para trocar o status">${statusProdutoLabel(p.status)}</span>
         <div class="pc-actions">
           <button class="icon-btn" onclick="openProdModal('${p.id}')">✏️</button>
           <button class="icon-btn del" onclick="delProduto('${p.id}')">🗑</button>
