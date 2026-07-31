@@ -468,6 +468,10 @@ body{font-family:'Inter',sans-serif;color:var(--tx);overflow-x:hidden;
       <div class="fg"><label>Preço (R$)</label><input id="prod-preco" type="number" step="0.01" placeholder="0,00"/></div>
     </div>
     <div class="fg"><label>Descrição / detalhe</label><input id="prod-det" placeholder="Ex: 7x10cm • Mín. 6 un."/></div>
+    <div class="form-row">
+      <div class="fg"><label>Tamanho (opcional)</label><input id="prod-tamanho" placeholder="Ex: 40x40cm"/></div>
+      <div class="fg"><label>Largura da alça (opcional)</label><input id="prod-alca" placeholder="Ex: 2,5cm"/></div>
+    </div>
     <div class="fg"><label>Disponibilidade</label>
       <select id="prod-status"><option value="disp">✅ Disponível (pronta entrega)</option><option value="person">🎨 Personalizável</option><option value="esg">🔴 Esgotado</option></select>
     </div>
@@ -1190,6 +1194,8 @@ function openProdModal(id){
     document.getElementById('prod-cat').value = p.cat;
     document.getElementById('prod-preco').value = p.preco;
     document.getElementById('prod-det').value = p.det||'';
+    document.getElementById('prod-tamanho').value = p.tamanho||'';
+    document.getElementById('prod-alca').value = p.alca||'';
     document.getElementById('prod-status').value = p.status;
     if(p.foto){
       prodPhotoData = p.foto;
@@ -1203,6 +1209,8 @@ function openProdModal(id){
     document.getElementById('prod-cat').value='botton';
     document.getElementById('prod-preco').value='';
     document.getElementById('prod-det').value='';
+    document.getElementById('prod-tamanho').value='';
+    document.getElementById('prod-alca').value='';
     document.getElementById('prod-status').value='disp';
   }
   openModal('modal-prod');
@@ -1242,6 +1250,8 @@ async function saveProduto(){
     cat: document.getElementById('prod-cat').value,
     preco: parseFloat(document.getElementById('prod-preco').value)||0,
     det: document.getElementById('prod-det').value.trim(),
+    tamanho: document.getElementById('prod-tamanho').value.trim(),
+    alca: document.getElementById('prod-alca').value.trim(),
     status: document.getElementById('prod-status').value,
     foto: prodPhotoData
   };
