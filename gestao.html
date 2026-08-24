@@ -519,10 +519,11 @@ body{font-family:'Inter',sans-serif;color:var(--tx);overflow-x:hidden;
         <select id="pedido-produto-sel" style="flex:1" onchange="mostrarEmbalagensSugeridas()">
           <option value="">Selecione um produto...</option>
           <option value="Foto Normal">📸 Foto Normal — R$ 8,00 (lote mín. 6 un)</option>
+          <option value="Foto Polaroid Normal">📸 Foto Polaroid Normal — R$ 4,50 (lote mín. 6 un)</option>
           <option value="Foto Polaroid Ímã">🧲📸 Foto Polaroid Ímã — R$ 10,00 (lote mín. 6 un)</option>
-          <option value="Botom P">🔘 Botom P — R$ 8,00</option>
+          <option value="Botom P">🔘 Botom P — R$ 6,00</option>
           <option value="Botom M">🔘 Botom M — R$ 8,00</option>
-          <option value="Botom G">🔘 Botom G — R$ 12,00</option>
+          <option value="Botom G">🔘 Botom G — R$ 10,00</option>
           <option value="Botom Chaveiro">🗝️ Botom Chaveiro — R$ 15,00</option>
           <option value="Botom Ímã">🧲 Botom Ímã — R$ 15,00</option>
           <option value="Ecobag com Zíper">👜 Ecobag com Zíper — R$ 75,00</option>
@@ -722,6 +723,7 @@ body{font-family:'Inter',sans-serif;color:var(--tx);overflow-x:hidden;
       <select id="perda-produto-sel" onchange="mostrarMateriaisPerda()">
         <option value="">Selecione um produto...</option>
         <option value="Foto Normal">📸 Foto Normal</option>
+        <option value="Foto Polaroid Normal">📸 Foto Polaroid Normal</option>
         <option value="Foto Polaroid Ímã">🧲📸 Foto Polaroid Ímã</option>
         <option value="Botom P">🔘 Botom P</option>
         <option value="Botom M">🔘 Botom M</option>
@@ -1617,6 +1619,14 @@ const PRODUTOS_CATALOGO = {
     {nome:'Tag adesiva',         custo:0.44, qtd:1},
     {nome:'Sacola craft PP',     custo:1.09, qtd:1},
   ]},
+  'Foto Polaroid Normal': { lote:6, preco:4.5, materiais:[
+    {nome:'Folha',               custo:0.27, qtd:1},
+    {nome:'Pacotinho plástico',  custo:0.19, qtd:1},
+    {nome:'Caixinha',            custo:0.27, qtd:1},
+    {nome:'Tag normal',          custo:0.03, qtd:1},
+    {nome:'Tag adesiva',         custo:0.44, qtd:1},
+    {nome:'Sacola craft PP',     custo:1.09, qtd:1},
+  ]},
   'Foto Polaroid Ímã': { lote:6, preco:10, materiais:[
     {nome:'Folha',               custo:0.27, qtd:1},
     {nome:'Pacotinho plástico',  custo:0.19, qtd:1},
@@ -1626,7 +1636,7 @@ const PRODUTOS_CATALOGO = {
     {nome:'Ímã adesivo',         custo:0.51, qtd:6},
     {nome:'Sacola craft PP',     custo:1.09, qtd:1},
   ]},
-  'Botom P': { lote:1, preco:8, materiais:[
+  'Botom P': { lote:1, preco:6, materiais:[
     {nome:'Botom P',             custo:0.59, qtd:1},
     {nome:'Impressão',           custo:0.01, qtd:1},
     {nome:'Caixinha',            custo:0.27, qtd:1},
@@ -1642,7 +1652,7 @@ const PRODUTOS_CATALOGO = {
     {nome:'Tag normal',          custo:0.03, qtd:1},
     {nome:'Sacola craft PP',     custo:1.09, qtd:1},
   ]},
-  'Botom G': { lote:1, preco:12, materiais:[
+  'Botom G': { lote:1, preco:10, materiais:[
     {nome:'Botom G',             custo:0.77, qtd:1},
     {nome:'Impressão',           custo:0.01, qtd:1},
     {nome:'Caixinha',            custo:0.27, qtd:1},
