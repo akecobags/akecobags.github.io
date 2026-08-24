@@ -1188,8 +1188,11 @@ async function changePedidoStatus(id, novoStatus){
   const p = pedidos.find(x=>x.id===id);
   p.status = novoStatus;
   if(novoStatus === 'pronto' && !p.estoqueBaixado){
-    await baixarEstoqueDoPedido(p);
+    const naoEncontrados = await baixarEstoqueDoPedido(p);
     p.estoqueBaixado = true;
+    if(naoEncontrados && naoEncontrados.length){
+      alert('⚠️ Pedido marcado como pronto, mas alguns materiais não foram encontrados no Estoque (cadastre-os com esse nome, ou similar, pra baixa automática funcionar):\n\n' + [...new Set(naoEncontrados)].join('\n'));
+    }
   }
   await saveCollection('pedidos', pedidos);
   renderPedidos();
@@ -1210,8 +1213,11 @@ async function changePedidoPago(id, valor){
   }
   // Se o pedido já foi entregue ou pago, garante que os materiais foram baixados do estoque
   if((p.status === 'entregue' || p.pago) && !p.estoqueBaixado){
-    await baixarEstoqueDoPedido(p);
+    const naoEncontrados = await baixarEstoqueDoPedido(p);
     p.estoqueBaixado = true;
+    if(naoEncontrados && naoEncontrados.length){
+      alert('⚠️ Alguns materiais não foram encontrados no Estoque (cadastre-os com esse nome, ou similar, pra baixa automática funcionar):\n\n' + [...new Set(naoEncontrados)].join('\n'));
+    }
   }
   await saveCollection('pedidos', pedidos);
   const cli = clientes.find(c=>c.id===p.clienteId);
@@ -1707,13 +1713,31 @@ function renderPedidoExtras(){
   } else {
     container.innerHTML = pedidoExtras.map((ex,idx) => `
       <div style="display:flex;align-items:center;gap:.5rem;padding:.5rem 0;border-bottom:1px solid var(--creme-d);font-size:.83rem">
-        <div style="flex:1">${ex.nome} <span style="color:var(--mu)">×${ex.qtd}</span></div>
-        <div style="font-weight:600;color:var(--rd)">-${fmtMoney(ex.custo*ex.qtd)}</div>
+        <div style="flex:1">${ex.nome}</div>
+        <div style="display:flex;align-items:center;gap:.3rem;background:var(--creme);border:1.5px solid var(--creme-d);border-radius:8px;padding:.15rem .3rem">
+          <button type="button" class="icon-btn" onclick="stepExtraQtd(${idx},-1)" style="width:24px;height:24px;font-size:1rem">−</button>
+          <span style="min-width:22px;text-align:center;font-weight:700">${ex.qtd}</span>
+          <button type="button" class="icon-btn" onclick="stepExtraQtd(${idx},1)" style="width:24px;height:24px;font-size:1rem">+</button>
+        </div>
+        <div style="font-weight:600;color:var(--rd);min-width:70px;text-align:right">-${fmtMoney(ex.custo*ex.qtd)}</div>
         <button type="button" class="icon-btn del" onclick="removeExtraPedido(${idx})" style="width:26px;height:26px">✕</button>
       </div>`).join('');
   }
   updatePedidoValorTotal();
 }
+
+function stepExtraQtd(idx, delta){
+  const ex = pedidoExtras[idx];
+  if(!ex) return;
+  const novaQtd = Math.max(0, Math.round((ex.qtd + delta)*100)/100);
+  if(novaQtd === 0){
+    pedidoExtras.splice(idx,1);
+  } else {
+    ex.qtd = novaQtd;
+  }
+  renderPedidoExtras();
+}
+
 
 function addItemPedido(){
   const sel = document.getElementById('pedido-produto-sel');
@@ -1951,9 +1975,12 @@ async function savePedido(){
   // Desconta estoque automaticamente na primeira vez que o pedido chega em "Pronto" (ou além)
   const statusJaProduziu = ['pronto','entregue'].includes(data.status);
   if(statusJaProduziu && !data.estoqueBaixado){
-    await baixarEstoqueDoPedido(data);
+    const naoEncontrados = await baixarEstoqueDoPedido(data);
     data.estoqueBaixado = true;
     if(id){ pedidos[pedidos.findIndex(p=>p.id===id)] = data; } else { pedidos[pedidos.length-1] = data; }
+    if(naoEncontrados && naoEncontrados.length){
+      alert('⚠️ Pedido salvo, mas alguns materiais não foram encontrados no Estoque (cadastre-os com esse nome, ou similar, pra baixa automática funcionar):\n\n' + [...new Set(naoEncontrados)].join('\n'));
+    }
   }
 
   await saveCollection('pedidos', pedidos);
