@@ -1732,7 +1732,12 @@ function addItemPedido(){
     precoFinal = parseFloat(prompt('Digite o preço de venda unitário (R$):','0')) || 0;
     custoFinal = parseFloat(prompt('Digite o custo unitário (R$):','0')) || 0;
   }
-  pedidoItens.push({ nome: nomeFinal, preco: precoFinal, custo: custoFinal, qtd });
+  const itemExistente = pedidoItens.find(it => it.nome === nomeFinal && it.preco === precoFinal && it.custo === custoFinal);
+  if(itemExistente){
+    itemExistente.qtd += qtd;
+  } else {
+    pedidoItens.push({ nome: nomeFinal, preco: precoFinal, custo: custoFinal, qtd });
+  }
 
   // Multiplica os materiais marcados pela quantidade pedida.
   // Produtos com lote>1 (ex: fotos, produzidas de 6 em 6) calculam quantos lotes são necessários;
@@ -1753,10 +1758,8 @@ function addItemPedido(){
     });
   }
 
-  sel.value = '';
   pedidoProdutoQtd = 1;
   document.getElementById('pedido-produto-qtd-display').textContent = 1;
-  document.getElementById('pedido-embalagens-sugeridas').style.display='none';
   renderPedidoItens();
 }
 
