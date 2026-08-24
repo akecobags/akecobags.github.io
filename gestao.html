@@ -1534,16 +1534,39 @@ function encontrarEstoquePorPalavra(keyword){
 function normalizarNomeMaterial(str){
   return str.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/(.)\1+/g,'$1').trim();
 }
+// Distância de edição (Levenshtein) — mede quantas letras precisam mudar pra uma palavra virar a outra.
+// Usado como última tentativa pra pegar erros de digitação tipo trocar uma letra (ex: "Botton" -> "Botom").
+function distanciaEdicao(a, b){
+  const m = a.length, n = b.length;
+  const dp = Array.from({length:m+1}, (_,i)=>[i, ...Array(n).fill(0)]);
+  for(let j=0;j<=n;j++) dp[0][j]=j;
+  for(let i=1;i<=m;i++){
+    for(let j=1;j<=n;j++){
+      dp[i][j] = a[i-1]===b[j-1] ? dp[i-1][j-1] : 1 + Math.min(dp[i-1][j], dp[i][j-1], dp[i-1][j-1]);
+    }
+  }
+  return dp[m][n];
+}
 function encontrarEstoquePorNome(nome){
   const nb = nome.toLowerCase();
   const direto = estoque.find(e => e.nome.toLowerCase().includes(nb) || nb.includes(e.nome.toLowerCase()));
   if(direto) return direto;
   // fallback tolerante a diferenças como "Botom" vs "Bottom"
   const nbNorm = normalizarNomeMaterial(nome);
-  return estoque.find(e => {
+  const porNormalizacao = estoque.find(e => {
     const en = normalizarNomeMaterial(e.nome);
     return en.includes(nbNorm) || nbNorm.includes(en);
   });
+  if(porNormalizacao) return porNormalizacao;
+  // fallback final: tolera pequenos erros de digitação (ex: "Botton" com N no lugar de "Botom" com M)
+  let melhor = null, menorDist = Infinity;
+  estoque.forEach(e => {
+    const en = normalizarNomeMaterial(e.nome);
+    const dist = distanciaEdicao(nbNorm, en);
+    const limite = Math.max(1, Math.round(Math.max(nbNorm.length, en.length) * 0.25));
+    if(dist <= limite && dist < menorDist){ menorDist = dist; melhor = e; }
+  });
+  return melhor;
 }
 
 // Desconta do estoque os materiais usados nos produtos + embalagens de um pedido
