@@ -521,11 +521,11 @@ body{font-family:'Inter',sans-serif;color:var(--tx);overflow-x:hidden;
           <option value="Foto Normal Polaroid">📸 Foto Normal Polaroid — R$ 4,50 (lote mín. 6 un)</option>
           <option value="Foto Polaroid Ímã">🧲📸 Foto Polaroid Ímã — R$ 10,00 (lote mín. 6 un)</option>
           <option value="Foto Revelada Normal">🖨️📸 Foto Revelada Normal — R$ 8,00 (lote mín. 2 un)</option>
-          <option value="Botom P">🔘 Botom P — R$ 6,00</option>
-          <option value="Botom M">🔘 Botom M — R$ 8,00</option>
-          <option value="Botom G">🔘 Botom G — R$ 10,00</option>
-          <option value="Botom Chaveiro">🗝️ Botom Chaveiro — R$ 15,00</option>
-          <option value="Botom Ímã">🧲 Botom Ímã — R$ 15,00</option>
+          <option value="Botton P">🔘 Botton P — R$ 6,00</option>
+          <option value="Botton M">🔘 Botton M — R$ 8,00</option>
+          <option value="Botton G">🔘 Botton G — R$ 10,00</option>
+          <option value="Botton Chaveiro">🗝️ Botton Chaveiro — R$ 15,00</option>
+          <option value="Botton Ímã">🧲 Botton Ímã — R$ 15,00</option>
           <option value="Ecobag com Zíper">👜 Ecobag com Zíper — R$ 75,00</option>
           <option value="Ecobag sem Zíper">👜 Ecobag sem Zíper — R$ 70,00</option>
           <option value="Outro">✏️ Outro (digitar manualmente)</option>
@@ -725,11 +725,11 @@ body{font-family:'Inter',sans-serif;color:var(--tx);overflow-x:hidden;
         <option value="Foto Normal Polaroid">📸 Foto Normal Polaroid</option>
         <option value="Foto Polaroid Ímã">🧲📸 Foto Polaroid Ímã</option>
         <option value="Foto Revelada Normal">🖨️📸 Foto Revelada Normal</option>
-        <option value="Botom P">🔘 Botom P</option>
-        <option value="Botom M">🔘 Botom M</option>
-        <option value="Botom G">🔘 Botom G</option>
-        <option value="Botom Chaveiro">🗝️ Botom Chaveiro</option>
-        <option value="Botom Ímã">🧲 Botom Ímã</option>
+        <option value="Botton P">🔘 Botton P</option>
+        <option value="Botton M">🔘 Botton M</option>
+        <option value="Botton G">🔘 Botton G</option>
+        <option value="Botton Chaveiro">🗝️ Botton Chaveiro</option>
+        <option value="Botton Ímã">🧲 Botton Ímã</option>
         <option value="Ecobag com Zíper">👜 Ecobag com Zíper</option>
         <option value="Ecobag sem Zíper">👜 Ecobag sem Zíper</option>
       </select>
@@ -1535,7 +1535,7 @@ function normalizarNomeMaterial(str){
   return str.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/(.)\1+/g,'$1').trim();
 }
 // Distância de edição (Levenshtein) — mede quantas letras precisam mudar pra uma palavra virar a outra.
-// Usado como última tentativa pra pegar erros de digitação tipo trocar uma letra (ex: "Botton" -> "Botom").
+// Usado como última tentativa pra pegar pequenos erros de digitação entre o nome do Estoque e o do pedido.
 function distanciaEdicao(a, b){
   const m = a.length, n = b.length;
   const dp = Array.from({length:m+1}, (_,i)=>[i, ...Array(n).fill(0)]);
@@ -1551,14 +1551,14 @@ function encontrarEstoquePorNome(nome){
   const nb = nome.toLowerCase();
   const direto = estoque.find(e => e.nome.toLowerCase().includes(nb) || nb.includes(e.nome.toLowerCase()));
   if(direto) return direto;
-  // fallback tolerante a diferenças como "Botom" vs "Bottom"
+  // fallback tolerante a pequenas diferenças de escrita (letras repetidas, acentos etc.)
   const nbNorm = normalizarNomeMaterial(nome);
   const porNormalizacao = estoque.find(e => {
     const en = normalizarNomeMaterial(e.nome);
     return en.includes(nbNorm) || nbNorm.includes(en);
   });
   if(porNormalizacao) return porNormalizacao;
-  // fallback final: tolera pequenos erros de digitação (ex: "Botton" com N no lugar de "Botom" com M)
+  // fallback final: tolera pequenos erros de digitação (uma letra trocada, faltando, etc.)
   let melhor = null, menorDist = Infinity;
   estoque.forEach(e => {
     const en = normalizarNomeMaterial(e.nome);
@@ -1575,8 +1575,8 @@ async function baixarEstoqueDoPedido(pedido){
   const naoEncontrados = [];
 
   (pedido.itens||[]).forEach(item => {
-    // Produtos do catálogo novo (Botom P, Botom G, Ecobag etc.) já têm TODOS os seus
-    // componentes — inclusive a peça em si (ex: "Botom G") — detalhados na lista de
+    // Produtos do catálogo novo (Botton P, Botton G, Ecobag etc.) já têm TODOS os seus
+    // componentes — inclusive a peça em si (ex: "Botton G") — detalhados na lista de
     // materiais/extras do pedido. A baixa de estoque deles acontece ali embaixo
     // (no forEach de pedido.extras), então aqui a gente pula pra não descontar em dobro.
     if(PRODUTOS_CATALOGO[item.nome]) return;
@@ -1659,40 +1659,40 @@ const PRODUTOS_CATALOGO = {
     {nome:'Tag adesiva',         custo:0.44, qtd:1},
     {nome:'Sacola craft PP',     custo:1.09, qtd:1},
   ]},
-  'Botom P': { lote:1, preco:6, materiais:[
-    {nome:'Botom P',             custo:0.59, qtd:1},
+  'Botton P': { lote:1, preco:6, materiais:[
+    {nome:'Botton P',             custo:0.59, qtd:1},
     {nome:'Impressão',           custo:0.01, qtd:1},
     {nome:'Caixinha',            custo:0.27, qtd:1},
     {nome:'Tag adesiva',         custo:0.44, qtd:1},
     {nome:'Tag normal',          custo:0.03, qtd:1},
     {nome:'Sacola craft PP',     custo:1.09, qtd:1},
   ]},
-  'Botom M': { lote:1, preco:8, materiais:[
-    {nome:'Botom M',             custo:0.59, qtd:1},
+  'Botton M': { lote:1, preco:8, materiais:[
+    {nome:'Botton M',             custo:0.59, qtd:1},
     {nome:'Impressão',           custo:0.01, qtd:1},
     {nome:'Caixinha',            custo:0.27, qtd:1},
     {nome:'Tag adesiva',         custo:0.44, qtd:1},
     {nome:'Tag normal',          custo:0.03, qtd:1},
     {nome:'Sacola craft PP',     custo:1.09, qtd:1},
   ]},
-  'Botom G': { lote:1, preco:10, materiais:[
-    {nome:'Botom G',             custo:0.77, qtd:1},
+  'Botton G': { lote:1, preco:10, materiais:[
+    {nome:'Botton G',             custo:0.77, qtd:1},
     {nome:'Impressão',           custo:0.01, qtd:1},
     {nome:'Caixinha',            custo:0.27, qtd:1},
     {nome:'Tag adesiva',         custo:0.44, qtd:1},
     {nome:'Tag normal',          custo:0.03, qtd:1},
     {nome:'Sacola craft PP',     custo:1.09, qtd:1},
   ]},
-  'Botom Chaveiro': { lote:1, preco:15, materiais:[
-    {nome:'Botom Chaveiro',      custo:1.98, qtd:1},
+  'Botton Chaveiro': { lote:1, preco:15, materiais:[
+    {nome:'Botton Chaveiro',      custo:1.98, qtd:1},
     {nome:'Impressão',           custo:0.01, qtd:1},
     {nome:'Caixinha',            custo:0.27, qtd:1},
     {nome:'Tag adesiva',         custo:0.44, qtd:1},
     {nome:'Tag normal',          custo:0.03, qtd:1},
     {nome:'Sacola craft PP',     custo:1.09, qtd:1},
   ]},
-  'Botom Ímã': { lote:1, preco:15, materiais:[
-    {nome:'Botom Ímã',           custo:2.18, qtd:1},
+  'Botton Ímã': { lote:1, preco:15, materiais:[
+    {nome:'Botton Ímã',           custo:2.18, qtd:1},
     {nome:'Impressão',           custo:0.01, qtd:1},
     {nome:'Caixinha',            custo:0.27, qtd:1},
     {nome:'Tag adesiva',         custo:0.44, qtd:1},
@@ -2433,7 +2433,7 @@ function stepQtdPerda(delta){
 }
 
 // Mostra os materiais do produto escolhido. Por padrão, só a PEÇA principal vem marcada
-// (ex: só o "Botom G"), já que embalagem geralmente não é desperdiçada num erro de produção —
+// (ex: só o "Botton G"), já que embalagem geralmente não é desperdiçada num erro de produção —
 // mas o usuário pode marcar mais itens se também perdeu caixinha, tag etc.
 function mostrarMateriaisPerda(){
   const nome = document.getElementById('perda-produto-sel').value;
