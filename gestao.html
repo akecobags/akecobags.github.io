@@ -518,9 +518,9 @@ body{font-family:'Inter',sans-serif;color:var(--tx);overflow-x:hidden;
       <div style="display:flex;gap:.5rem;margin-top:.6rem;align-items:stretch">
         <select id="pedido-produto-sel" style="flex:1" onchange="mostrarEmbalagensSugeridas()">
           <option value="">Selecione um produto...</option>
-          <option value="Foto Normal">📸 Foto Normal — R$ 8,00 (lote mín. 6 un)</option>
-          <option value="Foto Polaroid Normal">📸 Foto Polaroid Normal — R$ 4,50 (lote mín. 6 un)</option>
+          <option value="Foto Normal Polaroid">📸 Foto Normal Polaroid — R$ 4,50 (lote mín. 6 un)</option>
           <option value="Foto Polaroid Ímã">🧲📸 Foto Polaroid Ímã — R$ 10,00 (lote mín. 6 un)</option>
+          <option value="Foto Revelada Normal">🖨️📸 Foto Revelada Normal — R$ 8,00 (lote mín. 2 un)</option>
           <option value="Botom P">🔘 Botom P — R$ 6,00</option>
           <option value="Botom M">🔘 Botom M — R$ 8,00</option>
           <option value="Botom G">🔘 Botom G — R$ 10,00</option>
@@ -722,9 +722,9 @@ body{font-family:'Inter',sans-serif;color:var(--tx);overflow-x:hidden;
     <div class="fg"><label>Produto</label>
       <select id="perda-produto-sel" onchange="mostrarMateriaisPerda()">
         <option value="">Selecione um produto...</option>
-        <option value="Foto Normal">📸 Foto Normal</option>
-        <option value="Foto Polaroid Normal">📸 Foto Polaroid Normal</option>
+        <option value="Foto Normal Polaroid">📸 Foto Normal Polaroid</option>
         <option value="Foto Polaroid Ímã">🧲📸 Foto Polaroid Ímã</option>
+        <option value="Foto Revelada Normal">🖨️📸 Foto Revelada Normal</option>
         <option value="Botom P">🔘 Botom P</option>
         <option value="Botom M">🔘 Botom M</option>
         <option value="Botom G">🔘 Botom G</option>
@@ -1611,15 +1611,7 @@ let pedidoExtraQtd = 1;
 // "lote" = quantidade mínima/padrão de produção daquele material (ex: fotos são produzidas em lotes de 6).
 // "qtd" dentro de cada material = quantas unidades daquele material são usadas por 1 lote (ex: 6 ímãs por lote de 6 fotos).
 const PRODUTOS_CATALOGO = {
-  'Foto Normal': { lote:6, preco:8, materiais:[
-    {nome:'Folha',               custo:0.27, qtd:1},
-    {nome:'Pacotinho plástico',  custo:0.19, qtd:1},
-    {nome:'Caixinha',            custo:0.27, qtd:1},
-    {nome:'Tag normal',          custo:0.03, qtd:1},
-    {nome:'Tag adesiva',         custo:0.44, qtd:1},
-    {nome:'Sacola craft PP',     custo:1.09, qtd:1},
-  ]},
-  'Foto Polaroid Normal': { lote:6, preco:4.5, materiais:[
+  'Foto Normal Polaroid': { lote:6, preco:4.5, materiais:[
     {nome:'Folha',               custo:0.27, qtd:1},
     {nome:'Pacotinho plástico',  custo:0.19, qtd:1},
     {nome:'Caixinha',            custo:0.27, qtd:1},
@@ -1634,6 +1626,14 @@ const PRODUTOS_CATALOGO = {
     {nome:'Tag normal',          custo:0.03, qtd:1},
     {nome:'Tag adesiva',         custo:0.44, qtd:1},
     {nome:'Ímã adesivo',         custo:0.51, qtd:6},
+    {nome:'Sacola craft PP',     custo:1.09, qtd:1},
+  ]},
+  'Foto Revelada Normal': { lote:2, preco:8, materiais:[
+    {nome:'Folha',               custo:0.27, qtd:1},
+    {nome:'Pacotinho plástico',  custo:0.19, qtd:1},
+    {nome:'Caixinha',            custo:0.27, qtd:1},
+    {nome:'Tag normal',          custo:0.03, qtd:1},
+    {nome:'Tag adesiva',         custo:0.44, qtd:1},
     {nome:'Sacola craft PP',     custo:1.09, qtd:1},
   ]},
   'Botom P': { lote:1, preco:6, materiais:[
