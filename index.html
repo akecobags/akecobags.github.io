@@ -61,6 +61,15 @@ body::before{content:'';position:fixed;inset:0;background-image:radial-gradient(
 .footer-txt{font-size:.72rem;color:var(--mu);opacity:.6}
 .urgencia{display:inline-flex;align-items:center;gap:.4rem;background:var(--verde-xc);color:var(--verde);font-size:.72rem;font-weight:600;padding:.35rem .8rem;border-radius:20px;margin-bottom:1.4rem}
 .b2b-sec{margin-top:1.6rem;padding-top:1.5rem;border-top:1.5px solid var(--creme-d);text-align:center}
+.faq-sec{margin-top:1.6rem;padding-top:1.5rem;border-top:1.5px solid var(--creme-d)}
+.faq-titulo{font-family:'Playfair Display',serif;font-size:1.15rem;color:var(--verde);text-align:center;margin-bottom:1rem}
+.faq-item{border:1px solid var(--creme-d);border-radius:14px;margin-bottom:.6rem;overflow:hidden;background:#fff}
+.faq-pergunta{width:100%;text-align:left;background:none;border:none;padding:.85rem 1rem;font-family:inherit;font-size:.88rem;font-weight:600;color:var(--verde);display:flex;justify-content:space-between;align-items:center;gap:.6rem;cursor:pointer}
+.faq-pergunta .faq-icon{flex-shrink:0;transition:transform .25s ease;color:var(--verde-mid);font-size:.9rem}
+.faq-item.aberto .faq-pergunta .faq-icon{transform:rotate(45deg)}
+.faq-resposta{max-height:0;overflow:hidden;transition:max-height .3s ease}
+.faq-resposta-in{padding:0 1rem 1rem;font-size:.82rem;line-height:1.5;color:var(--mu)}
+.faq-item.aberto .faq-resposta{max-height:220px}
 .b2b-titulo{font-family:'Playfair Display',serif;font-size:1.05rem;color:var(--tx)}
 
 /* ── TELA ORÇAMENTO ── */
@@ -210,6 +219,35 @@ body::before{content:'';position:fixed;inset:0;background-image:radial-gradient(
 
   <div class="b2b-sec">
     <div class="b2b-titulo">Para todas as ocasiões 🌿</div>
+  </div>
+
+  <div class="faq-sec">
+    <div class="faq-titulo">Perguntas frequentes</div>
+
+    <div class="faq-item" onclick="this.classList.toggle('aberto')">
+      <div class="faq-pergunta"><span>Qual o prazo de entrega?</span><span class="faq-icon">+</span></div>
+      <div class="faq-resposta"><div class="faq-resposta-in">De 1 a 3 dias úteis, dependendo da quantidade do pedido.</div></div>
+    </div>
+
+    <div class="faq-item" onclick="this.classList.toggle('aberto')">
+      <div class="faq-pergunta"><span>Vocês fazem entrega ou só retirada?</span><span class="faq-icon">+</span></div>
+      <div class="faq-resposta"><div class="faq-resposta-in">Fazemos entrega e retirada! Em Joinville, cobramos uma taxa de entrega conforme o bairro (ou, se preferir, você pode retirar). Para fora de Joinville, enviamos pelos Correios, com o valor do frete variando conforme a cidade.</div></div>
+    </div>
+
+    <div class="faq-item" onclick="this.classList.toggle('aberto')">
+      <div class="faq-pergunta"><span>Como funciona o processo de personalização?</span><span class="faq-icon">+</span></div>
+      <div class="faq-resposta"><div class="faq-resposta-in">Você manda a arte/imagem, a gente faz a edição e te mostra antes de produzir. Só depois que você aprovar, o pedido vai pra fabricação.</div></div>
+    </div>
+
+    <div class="faq-item" onclick="this.classList.toggle('aberto')">
+      <div class="faq-pergunta"><span>Qual a forma de pagamento?</span><span class="faq-icon">+</span></div>
+      <div class="faq-resposta"><div class="faq-resposta-in">Débito, crédito e Pix.</div></div>
+    </div>
+
+    <div class="faq-item" onclick="this.classList.toggle('aberto')">
+      <div class="faq-pergunta"><span>Como faço pra saber o preço do meu pedido?</span><span class="faq-icon">+</span></div>
+      <div class="faq-resposta"><div class="faq-resposta-in">É só clicar em "Solicitar orçamento" aqui no site.</div></div>
+    </div>
   </div>
 
 </div>
