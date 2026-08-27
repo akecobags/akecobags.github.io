@@ -666,6 +666,53 @@ body{font-family:'Inter',sans-serif;color:var(--tx);overflow-x:hidden;
   </div>
 </div>
 
+<!-- ============ MODAL: RESUMO DO PEDIDO (CONFIRMAÇÃO) ============ -->
+<div class="modal-overlay" id="modal-resumo-pedido">
+  <div class="modal-box">
+    <h2>🧾 Resumo do pedido para confirmação</h2>
+    <input type="hidden" id="resumo-pedido-id"/>
+    <div class="fg"><label>WhatsApp do cliente</label><input id="resumo-fone" placeholder="(47) 99999-9999"/></div>
+
+    <div class="form-row">
+      <div class="fg"><label>Forma de pagamento</label>
+        <select id="resumo-forma-pagamento" onchange="toggleParcelasResumo();atualizarMsgResumo()">
+          <option value="pix">💠 Pix</option>
+          <option value="dinheiro">💵 Dinheiro</option>
+          <option value="debito">💳 Débito</option>
+          <option value="credito">💳 Crédito</option>
+          <option value="outro">✏️ Outro</option>
+        </select>
+      </div>
+      <div class="fg" id="resumo-parcelas-wrap" style="display:none"><label>Quantas vezes</label>
+        <select id="resumo-parcelas" onchange="atualizarMsgResumo()">
+          <option value="1">1x sem juros</option>
+          <option value="2">2x</option>
+          <option value="3">3x</option>
+          <option value="4">4x</option>
+          <option value="5">5x</option>
+          <option value="6">6x</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="fg"><label>Data prevista de entrega</label>
+      <input id="resumo-data" type="date" oninput="atualizarMsgResumo()"/>
+    </div>
+
+    <div class="fg"><label>Observação (opcional — aparece na mensagem)</label>
+      <textarea id="resumo-obs" placeholder="Ex: retirar no local, embalagem para presente..." oninput="atualizarMsgResumo()"></textarea>
+    </div>
+
+    <div class="fg"><label>Mensagem (você pode editar antes de enviar)</label>
+      <textarea id="resumo-msg" style="min-height:240px"></textarea>
+    </div>
+    <div class="modal-btns">
+      <button class="btn btn-outline" onclick="closeModal('modal-resumo-pedido')">Cancelar</button>
+      <button class="btn btn-primary" onclick="enviarResumoPedido()">Enviar no WhatsApp</button>
+    </div>
+  </div>
+</div>
+
 <!-- ============ MODAL: HISTÓRICO DO CLIENTE ============ -->
 <div class="modal-overlay" id="modal-historico-cliente">
   <div class="modal-box">
@@ -1188,6 +1235,82 @@ function enviarStatusWhatsApp(){
   }
   window.open(`https://wa.me/55${fone}?text=${encodeURIComponent(msg)}`, '_blank');
   closeModal('modal-wa-status');
+}
+
+// ===== RESUMO DO PEDIDO (mensagem de confirmação p/ cliente) =====
+function formaPagamentoResumoLabel(forma, parcelas){
+  const map = { pix:'💠 Pix', dinheiro:'💵 Dinheiro', debito:'💳 Débito', outro:'✏️ A combinar' };
+  if(forma === 'credito'){
+    const n = parseInt(parcelas)||1;
+    return n>1 ? `💳 Crédito em ${n}x` : '💳 Crédito à vista (1x)';
+  }
+  return map[forma] || forma;
+}
+
+function montarMsgResumo(p, cli, opts){
+  const itens = (p.itens && p.itens.length) ? p.itens : [];
+  const itensTxt = itens.length
+    ? itens.map(it => `• ${it.nome} — ${it.qtd}x`).join('\n')
+    : (p.desc ? `• ${p.desc}` : '• (itens não detalhados)');
+  const nome = cli ? cli.nome : '';
+  const formaTxt = formaPagamentoResumoLabel(opts.formaPagamento, opts.parcelas);
+  const dataTxt = opts.data ? fmtDate(opts.data) : '(a combinar)';
+  const obsBloco = opts.obs ? `\n📝 *Observação:* ${opts.obs}\n` : '';
+  return `Olá, ${nome}! 🌿\n\nAqui está o resumo do seu pedido pra você conferir e confirmar:\n\n🛒 *Itens:*\n${itensTxt}\n\n💰 *Valor total:* ${fmtMoney(p.valor)}\n💳 *Forma de pagamento:* ${formaTxt}\n📅 *Prazo de entrega:* ${dataTxt}\n${obsBloco}\nEstá tudo certo? Assim que você confirmar, já colocamos seu pedido em produção! 💚`;
+}
+
+function pegarOpcoesResumo(){
+  return {
+    formaPagamento: document.getElementById('resumo-forma-pagamento').value,
+    parcelas: document.getElementById('resumo-parcelas').value,
+    data: document.getElementById('resumo-data').value,
+    obs: document.getElementById('resumo-obs').value.trim()
+  };
+}
+
+// Mostra/esconde o campo "Quantas vezes" conforme a forma de pagamento escolhida
+function toggleParcelasResumo(){
+  const forma = document.getElementById('resumo-forma-pagamento').value;
+  document.getElementById('resumo-parcelas-wrap').style.display = (forma==='credito') ? '' : 'none';
+}
+
+function abrirResumoPedido(id){
+  const p = pedidos.find(x=>x.id===id);
+  const cli = clientes.find(c=>c.id===p.clienteId);
+  document.getElementById('resumo-pedido-id').value = id;
+  document.getElementById('resumo-fone').value = cli ? (cli.fone||'') : '';
+  // Pré-preenche com o que já estiver salvo no pedido, se houver
+  document.getElementById('resumo-forma-pagamento').value = p.formaPagamento || 'pix';
+  document.getElementById('resumo-parcelas').value = '1';
+  document.getElementById('resumo-data').value = p.data || '';
+  document.getElementById('resumo-obs').value = '';
+  toggleParcelasResumo();
+  document.getElementById('resumo-msg').value = montarMsgResumo(p, cli, pegarOpcoesResumo());
+  openModal('modal-resumo-pedido');
+}
+
+// Recalcula a mensagem quando forma de pagamento, parcelas, data ou observação mudam
+function atualizarMsgResumo(){
+  const id = document.getElementById('resumo-pedido-id').value;
+  const p = pedidos.find(x=>x.id===id);
+  if(!p) return;
+  const cli = clientes.find(c=>c.id===p.clienteId);
+  document.getElementById('resumo-msg').value = montarMsgResumo(p, cli, pegarOpcoesResumo());
+}
+
+function enviarResumoPedido(){
+  const fone = document.getElementById('resumo-fone').value.replace(/\D/g,'');
+  const msg = document.getElementById('resumo-msg').value;
+  if(!fone){ alert('Digite o número de WhatsApp do cliente!'); return; }
+  const id = document.getElementById('resumo-pedido-id').value;
+  const p = pedidos.find(x=>x.id===id);
+  const cli = p ? clientes.find(c=>c.id===p.clienteId) : null;
+  if(cli && !cli.fone){
+    cli.fone = document.getElementById('resumo-fone').value.trim();
+    saveCollection('clientes', clientes);
+  }
+  window.open(`https://wa.me/55${fone}?text=${encodeURIComponent(msg)}`, '_blank');
+  closeModal('modal-resumo-pedido');
 }
 
 // Muda o status do pedido para o valor escolhido no menu suspenso
@@ -2221,6 +2344,7 @@ function renderPedidos(){
         </select>
       </div>
       <div class="li-actions">
+        <button class="icon-btn" title="Resumo do pedido (confirmação)" onclick="abrirResumoPedido('${p.id}')">🧾</button>
         <button class="icon-btn" title="Avisar status via WhatsApp" onclick="abrirStatusWhatsApp('${p.id}')">📲</button>
         <button class="icon-btn" onclick="openPedidoModal('${p.id}')">✏️</button>
         <button class="icon-btn del" onclick="delPedido('${p.id}')">🗑</button>
