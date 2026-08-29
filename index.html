@@ -33,7 +33,7 @@ section{scroll-margin-top:84px}
 .costura{height:20px;margin:0 auto;max-width:1180px;background-image:repeating-linear-gradient(to right,var(--verde-cl) 0 10px,transparent 10px 20px);background-position:center;background-repeat:repeat-x;background-size:20px 2px;background-position-y:center;opacity:.9}
 
 /* ── NAV ── */
-.nav{position:sticky;top:0;z-index:200;background:#bea58a;border-bottom:1px solid var(--creme-d)}
+.nav{position:sticky;top:0;z-index:200;background:var(--creme);border-bottom:1px solid var(--creme-d)}
 .nav-inner{max-width:1180px;margin:0 auto;padding:.85rem 1.6rem;display:flex;align-items:center;gap:1.6rem}
 .nav-brand{display:flex;align-items:center;gap:.65rem;text-decoration:none;flex-shrink:0}
 .nav-logo{width:40px;height:40px;border-radius:50%;overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:var(--verde)}
@@ -51,9 +51,12 @@ section{scroll-margin-top:84px}
 @media(max-width:520px){.nav-brand-nome{display:none}.nav-wpp span.txt-full{display:none}}
 
 /* ── HERO ── */
-.hero{position:relative;padding:0}
-.hero-inner{display:grid;grid-template-columns:1fr 1fr;align-items:center;gap:0;max-width:none;padding:0}
-.hero-text{padding:3.6rem clamp(1.6rem,4vw,3.2rem) 3.6rem max(1.6rem,calc((100vw - 1180px)/2 + 1.6rem));display:flex;flex-direction:column;justify-content:center}
+/* A foto ocupa o fundo inteiro da seção, de ponta a ponta — sem caixas de cor, sem linha dividindo */
+.hero{position:relative;width:100%;aspect-ratio:1672/941;overflow:hidden}
+.hero-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;z-index:0}
+.hero-overlay{position:absolute;inset:0;z-index:1;background:linear-gradient(90deg,var(--creme) 0%,rgba(247,243,237,.92) 32%,rgba(247,243,237,.55) 52%,rgba(247,243,237,.08) 72%,transparent 85%)}
+.hero-inner{position:relative;z-index:2;height:100%;display:flex;align-items:center;max-width:1180px;margin:0 auto;padding:0 1.6rem}
+.hero-text{max-width:520px;padding:2rem 0}
 .eyebrow{display:inline-flex;align-items:center;gap:.4rem;background:var(--verde-xc);color:var(--verde);font-size:.72rem;font-weight:600;padding:.35rem .8rem;border-radius:20px;margin-bottom:1.3rem;width:fit-content}
 .hero-titulo{font-family:'Playfair Display',serif;font-size:2.9rem;font-weight:700;line-height:1.08;letter-spacing:-1px;color:var(--tx);margin-bottom:1.1rem}
 .hero-titulo .script{font-size:1.15em;margin-left:.15rem}
@@ -69,13 +72,11 @@ section{scroll-margin-top:84px}
 .hero-feat{display:flex;align-items:center;gap:.5rem;font-size:.82rem;color:var(--mu);font-weight:500}
 .hero-feat span.ic{font-size:1rem}
 
-/* hero illustration — foto realista dos produtos */
-.hero-art{position:relative;overflow:hidden;aspect-ratio:1672/941;margin-right:calc((100vw - min(100vw,1180px))/-2)}
-.hero-art img{width:100%;height:100%;object-fit:cover;object-position:center top;display:block}
 @media(max-width:940px){
-  .hero-inner{grid-template-columns:1fr}
-  .hero-text{padding:3rem 1.6rem 2.2rem}
-  .hero-art{order:-1;min-height:0;aspect-ratio:1672/941;margin-right:0}
+  .hero{aspect-ratio:auto;min-height:640px}
+  .hero-overlay{background:linear-gradient(180deg,var(--creme) 0%,rgba(247,243,237,.94) 42%,rgba(247,243,237,.7) 60%,rgba(247,243,237,.15) 78%,transparent 90%)}
+  .hero-inner{align-items:flex-start;padding-top:2.2rem}
+  .hero-text{max-width:100%}
   .hero-titulo{font-size:2.1rem}
 }
 
@@ -250,7 +251,9 @@ footer strong{color:#fff}
 
 <!-- ════════════════ HERO ════════════════ -->
 <section id="inicio" class="hero">
-  <div class="envolto hero-inner">
+  <img class="hero-bg" src="hero-produtos.jpg" alt="Ecobag, caneca, copo térmico e chaveiro personalizados AK Personalizados"/>
+  <div class="hero-overlay"></div>
+  <div class="hero-inner">
     <div class="hero-text">
       <h1 class="hero-titulo">Criamos lembranças<br><span class="script">que ficam.</span></h1>
       <p class="hero-sub">Ecobags e bottons personalizados com qualidade, carinho e atenção em cada detalhe. Escolha sua arte e faça seu pedido.</p>
@@ -262,9 +265,6 @@ footer strong{color:#fff}
           <span class="msi">inventory_2</span> Ver catálogo
         </a>
       </div>
-    </div>
-    <div class="hero-art">
-      <img src="hero-produtos.jpg" alt="Ecobag, caneca, copo térmico e chaveiro personalizados AK Personalizados"/>
     </div>
   </div>
 </section>
