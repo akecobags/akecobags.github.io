@@ -176,9 +176,9 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-const CAT_LABELS = {botton:'🔘 Bottons', foto:'📸 Fotos Reveladas', ecobag:'👜 Ecobags', outro:'🎁 Outros'};
+const CAT_LABELS = {botton:'🔘 Bottons', foto:'📸 Fotos Reveladas', ecobag:'👜 Ecobags', caneca:'☕ Canecas e Copos', kit:'🎁 Kits Especiais', outro:'🎁 Outros'};
 const CAT_ORDER = ['botton','foto','ecobag','outro'];
-const FILTRO_LABELS = [['todos','Todos'],['botton','🔘 Bottons'],['foto','📸 Fotos'],['ecobag','👜 Ecobags'],['outro','🎁 Outros']];
+const FILTRO_LABELS = [['todos','Todos'],['botton','🔘 Bottons'],['foto','📸 Fotos'],['ecobag','👜 Ecobags'],['caneca','☕ Canecas/Copos'],['kit','🎁 Kits'],['outro','🎁 Outros']];
 
 function escAttr(s){
   return String(s==null?'':s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');

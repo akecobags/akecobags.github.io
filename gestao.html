@@ -466,6 +466,8 @@ body{font-family:'Inter',sans-serif;color:var(--tx);overflow-x:hidden;
           <option value="botton">🔘 Botton</option>
           <option value="foto">📸 Foto</option>
           <option value="ecobag">👜 Ecobag</option>
+          <option value="caneca">☕ Caneca/Copo</option>
+          <option value="kit">🎁 Kit</option>
           <option value="outro">🎁 Outro</option>
         </select>
       </div>
@@ -1491,7 +1493,7 @@ async function toggleProdStatus(id){
 }
 
 function renderSite(){
-  const cats = [['todos','Todos'],['botton','🔘 Bottons'],['foto','📸 Fotos'],['ecobag','👜 Ecobags'],['outro','🎁 Outros']];
+  const cats = [['todos','Todos'],['botton','🔘 Bottons'],['foto','📸 Fotos'],['ecobag','👜 Ecobags'],['caneca','☕ Canecas e Copos'],['kit','🎁 Kits'],['outro','🎁 Outros']];
   document.getElementById('site-filters').innerHTML = cats.map(([v,l]) =>
     `<button class="filter-chip ${siteFilter===v?'active':''}" onclick="setSiteFilter('${v}')">${l}</button>`
   ).join('');
