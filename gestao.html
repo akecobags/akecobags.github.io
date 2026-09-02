@@ -176,6 +176,8 @@ body{font-family:'Inter',sans-serif;color:var(--tx);overflow-x:hidden;
 /* Catalog product grid in Site module */
 .prod-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:.9rem}
 .prod-card-adm{background:var(--wh);border:1px solid var(--creme-d);border-radius:16px;overflow:hidden;box-shadow:var(--sh-sm);transition:transform .15s,box-shadow .15s}
+.prod-card-adm.arquivado-card{opacity:.6}
+.prod-card-adm.arquivado-card img{filter:grayscale(.4)}
 .prod-card-adm:hover{transform:translateY(-2px);box-shadow:var(--sh-md)}
 .prod-card-adm img{width:100%;aspect-ratio:1;object-fit:cover;background:var(--creme)}
 .prod-card-adm .pc-body{padding:.7rem .8rem}
@@ -1456,10 +1458,12 @@ async function saveProduto(){
     fechamento: document.getElementById('prod-fechamento').value,
     precoAPartir: document.getElementById('prod-preco-apartir').checked,
     status: document.getElementById('prod-status').value,
-    foto: prodPhotoData
+    foto: prodPhotoData,
+    arquivado: false
   };
   if(id){
     const idx = produtos.findIndex(p=>p.id===id);
+    data.arquivado = !!produtos[idx].arquivado; // preserva se já estava arquivado
     produtos[idx] = data;
   } else {
     produtos.push(data);
@@ -1471,8 +1475,16 @@ async function saveProduto(){
 }
 
 async function delProduto(id){
-  if(!confirm('Excluir este produto?')) return;
+  if(!confirm('Excluir este produto? Essa ação apaga a foto e todas as informações e não pode ser desfeita.\n\nSe é só uma pausa na produção, use o botão de Arquivar em vez de excluir.')) return;
   produtos = produtos.filter(p=>p.id!==id);
+  await saveCollection('produtos', produtos);
+  renderSite();
+  renderDashboard();
+}
+
+async function toggleArquivarProduto(id){
+  const p = produtos.find(x=>x.id===id);
+  p.arquivado = !p.arquivado;
   await saveCollection('produtos', produtos);
   renderSite();
   renderDashboard();
@@ -1493,19 +1505,25 @@ async function toggleProdStatus(id){
 }
 
 function renderSite(){
-  const cats = [['todos','Todos'],['botton','🔘 Bottons'],['foto','📸 Fotos'],['ecobag','👜 Ecobags'],['caneca','☕ Canecas e Copos'],['kit','🎁 Kits'],['outro','🎁 Outros']];
+  const cats = [['todos','Todos'],['botton','🔘 Bottons'],['foto','📸 Fotos'],['ecobag','👜 Ecobags'],['caneca','☕ Canecas e Copos'],['kit','🎁 Kits'],['outro','🎁 Outros'],['arquivados','📦 Arquivados']];
   document.getElementById('site-filters').innerHTML = cats.map(([v,l]) =>
     `<button class="filter-chip ${siteFilter===v?'active':''}" onclick="setSiteFilter('${v}')">${l}</button>`
   ).join('');
 
-  const filtered = siteFilter==='todos' ? produtos : produtos.filter(p=>p.cat===siteFilter);
+  let filtered;
+  if(siteFilter==='arquivados'){
+    filtered = produtos.filter(p=>p.arquivado);
+  } else {
+    filtered = (siteFilter==='todos' ? produtos : produtos.filter(p=>p.cat===siteFilter)).filter(p=>!p.arquivado);
+  }
   const grid = document.getElementById('site-grid');
   if(!filtered.length){
-    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><span class="ic">🛍️</span>Nenhum produto cadastrado ainda.<br>Clique em "+ Novo produto" para começar!</div>`;
+    const msg = siteFilter==='arquivados' ? 'Nenhum produto arquivado no momento.' : 'Nenhum produto cadastrado ainda.<br>Clique em "+ Novo produto" para começar!';
+    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><span class="ic">${siteFilter==='arquivados'?'📦':'🛍️'}</span>${msg}</div>`;
     return;
   }
   grid.innerHTML = filtered.map(p => `
-    <div class="prod-card-adm">
+    <div class="prod-card-adm ${p.arquivado?'arquivado-card':''}">
       <img src="${p.foto||''}" alt="${p.nome}" onerror="this.style.background='#eee'"/>
       <div class="pc-body">
         <div class="pc-name">${p.nome}</div>
@@ -1514,6 +1532,7 @@ function renderSite(){
         <span class="pc-status ${p.status}" onclick="toggleProdStatus('${p.id}')" style="cursor:pointer" title="Clique para trocar o status">${statusProdutoLabel(p.status)}</span>
         <div class="pc-actions">
           <button class="icon-btn" onclick="openProdModal('${p.id}')">✏️</button>
+          <button class="icon-btn" title="${p.arquivado?'Desarquivar (voltar a mostrar no catálogo)':'Arquivar (pausar sem excluir)'}" onclick="toggleArquivarProduto('${p.id}')">${p.arquivado?'♻️':'📦'}</button>
           <button class="icon-btn del" onclick="delProduto('${p.id}')">🗑</button>
         </div>
       </div>

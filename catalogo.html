@@ -192,7 +192,7 @@ function renderCatalogo(produtos){
   ).join('');
 
   const cont = document.getElementById('produtos-container');
-  const visiveis = produtos.filter(p=>p.status!=='oculto');
+  const visiveis = produtos.filter(p=>p.status!=='oculto' && !p.arquivado);
   if(!visiveis.length){
     cont.innerHTML = '<div class="empty-state" style="padding:2rem 1.2rem;text-align:center;color:var(--mu);font-size:.85rem">Nenhum produto disponível no momento. Volte em breve! 🌿</div>';
     return;
