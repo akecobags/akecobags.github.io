@@ -47,6 +47,9 @@ body::before{content:'';position:fixed;inset:0;background-image:radial-gradient(
 @media(min-width:700px){.grid{grid-template-columns:repeat(4,1fr)}}
 
 .prod-card{background:var(--wh);border-radius:4px;overflow:hidden;box-shadow:0 1px 2px rgba(42,36,25,.08),0 8px 20px -6px rgba(42,36,25,.15);transition:transform .2s,box-shadow .2s;display:flex;flex-direction:column;position:relative;border:1px solid var(--creme-d);border-top:3px solid var(--verde)}
+.prod-card.data-card{border-top:3px solid var(--gold);box-shadow:0 1px 2px rgba(42,36,25,.08),0 10px 26px -6px rgba(184,144,63,.35)}
+.prod-card.data-card .btn-add{background:var(--gold);border-color:var(--gold);color:#fff;text-decoration:none}
+.prod-card.data-card .btn-add:hover{background:var(--gold-dk);border-color:var(--gold-dk)}
 .prod-card::before{content:'';position:absolute;top:3px;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.9),transparent);z-index:1}
 .prod-card:hover{transform:translateY(-5px);box-shadow:0 2px 4px rgba(42,36,25,.1),0 20px 34px -8px rgba(184,144,63,.35);border-color:var(--gold)}
 .prod-card.added{outline:2px solid var(--gold);outline-offset:-1px}
@@ -176,9 +179,9 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-const CAT_LABELS = {botton:'🔘 Bottons', foto:'📸 Fotos Reveladas', ecobag:'👜 Ecobags', caneca:'☕ Canecas e Copos', kit:'🎁 Kits Especiais', outro:'🎁 Outros'};
-const CAT_ORDER = ['botton','foto','ecobag','caneca','kit','outro'];
-const FILTRO_LABELS = [['todos','Todos'],['botton','🔘 Bottons'],['foto','📸 Fotos'],['ecobag','👜 Ecobags'],['caneca','☕ Canecas/Copos'],['kit','🎁 Kits'],['outro','🎁 Outros']];
+const CAT_LABELS = {botton:'🔘 Bottons', foto:'📸 Fotos Reveladas', ecobag:'👜 Ecobags', caneca:'☕ Canecas e Copos', kit:'🎁 Kits Especiais', data:'Datas Comemorativas', outro:'🎁 Outros'};
+const CAT_ORDER = ['data','botton','foto','ecobag','caneca','kit','outro'];
+const FILTRO_LABELS = [['todos','Todos'],['data','Data Comemorativas'],['botton','🔘 Bottons'],['foto','📸 Fotos'],['ecobag','👜 Ecobags'],['caneca','☕ Canecas/Copos'],['kit','🎁 Kits'],['outro','🎁 Outros']];
 
 function escAttr(s){
   return String(s==null?'':s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
@@ -203,6 +206,22 @@ function renderCatalogo(produtos){
     const items = visiveis.filter(p=>p.cat===cat);
     if(!items.length) return;
     html += `<div class="cat-sec-t" id="st-${cat}">${CAT_LABELS[cat]}</div>`;
+    if(cat==='data'){
+      html += `<div class="grid" id="g-${cat}">`;
+      items.forEach(p=>{
+        const msg = encodeURIComponent(`Olá! Vi a campanha "${p.nome}" no catálogo e quero pedir um orçamento em quantidade`);
+        html += `<div class="prod-card data-card" data-cat="${cat}" data-id="${p.id}" data-nome="${escAttr(p.nome)}">
+    <div class="prod-img"><img src="${p.foto||''}" alt="${escAttr(p.nome)}"/></div>
+    <div class="prod-body">
+      <div class="prod-nome">${escAttr(p.nome)}</div>
+      <div class="prod-det">${escAttr(p.det)}</div>
+      <a class="btn-add" href="https://wa.me/5547996483831?text=${msg}" target="_blank" rel="noopener">📲 Solicitar orçamento</a>
+    </div>
+  </div>`;
+      });
+      html += `</div>`;
+      return;
+    }
     html += `<div class="grid" id="g-${cat}">`;
     items.forEach(p=>{
       const esgotado = p.status==='esg';

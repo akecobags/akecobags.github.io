@@ -464,17 +464,19 @@ body{font-family:'Inter',sans-serif;color:var(--tx);overflow-x:hidden;
     <div class="fg"><label>Nome do produto</label><input id="prod-nome" placeholder="Ex: Botton Pequeno"/></div>
     <div class="form-row">
       <div class="fg"><label>Categoria</label>
-        <select id="prod-cat">
+        <select id="prod-cat" onchange="toggleCampoPreco()">
           <option value="botton">🔘 Botton</option>
           <option value="foto">📸 Foto</option>
           <option value="ecobag">👜 Ecobag</option>
           <option value="caneca">☕ Caneca/Copo</option>
           <option value="kit">🎁 Kit</option>
+          <option value="data">Data Comemorativa</option>
           <option value="outro">🎁 Outro</option>
         </select>
       </div>
-      <div class="fg"><label>Preço (R$)</label><input id="prod-preco" type="number" step="0.01" placeholder="0,00"/></div>
+      <div class="fg" id="prod-preco-wrap"><label>Preço (R$)</label><input id="prod-preco" type="number" step="0.01" placeholder="0,00"/></div>
     </div>
+    <div class="fg" id="prod-data-aviso" style="display:none;background:var(--verde-xc);border-radius:8px;padding:.6rem .8rem;font-size:.78rem;color:var(--verde-mid)">Categorias de "Data Comemorativa" aparecem no catálogo sem preço, só com foto/descrição e um botão de "Solicitar orçamento" — ideal para campanhas em quantidade.</div>
     <div class="fg"><label>Descrição / detalhe</label><input id="prod-det" placeholder="Ex: 7x10cm • Mín. 6 un."/></div>
     <div class="form-row">
       <div class="fg"><label>Tamanho (opcional)</label><input id="prod-tamanho" placeholder="Ex: 40x40cm"/></div>
@@ -1416,7 +1418,14 @@ function openProdModal(id){
     document.getElementById('prod-preco-apartir').checked = false;
     document.getElementById('prod-status').value='disp';
   }
+  toggleCampoPreco();
   openModal('modal-prod');
+}
+
+function toggleCampoPreco(){
+  const isData = document.getElementById('prod-cat').value === 'data';
+  document.getElementById('prod-preco-wrap').style.display = isData ? 'none' : '';
+  document.getElementById('prod-data-aviso').style.display = isData ? '' : 'none';
 }
 
 function handleProdPhoto(e){
@@ -1505,7 +1514,7 @@ async function toggleProdStatus(id){
 }
 
 function renderSite(){
-  const cats = [['todos','Todos'],['botton','🔘 Bottons'],['foto','📸 Fotos'],['ecobag','👜 Ecobags'],['caneca','☕ Canecas e Copos'],['kit','🎁 Kits'],['outro','🎁 Outros'],['arquivados','📦 Arquivados']];
+  const cats = [['todos','Todos'],['botton','🔘 Bottons'],['foto','📸 Fotos'],['ecobag','👜 Ecobags'],['caneca','☕ Canecas e Copos'],['kit','🎁 Kits'],['data','Datas Comemorativas'],['outro','🎁 Outros'],['arquivados','📦 Arquivados']];
   document.getElementById('site-filters').innerHTML = cats.map(([v,l]) =>
     `<button class="filter-chip ${siteFilter===v?'active':''}" onclick="setSiteFilter('${v}')">${l}</button>`
   ).join('');
