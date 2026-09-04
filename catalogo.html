@@ -179,9 +179,9 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-const CAT_LABELS = {botton:'🔘 Bottons', foto:'📸 Fotos Reveladas', ecobag:'👜 Ecobags', caneca:'☕ Canecas e Copos', kit:'🎁 Kits Especiais', data:'Datas Comemorativas', outro:'🎁 Outros'};
+const CAT_LABELS = {botton:'🔘 Bottons', foto:'📸 Fotos Reveladas', ecobag:'👜 Ecobags', caneca:'☕ Canecas e Copos', kit:'🎁 Kits Especiais', data:'Datas Especiais 🎉', outro:'🎁 Outros'};
 const CAT_ORDER = ['data','botton','foto','ecobag','caneca','kit','outro'];
-const FILTRO_LABELS = [['todos','Todos'],['data','Data Comemorativas'],['botton','🔘 Bottons'],['foto','📸 Fotos'],['ecobag','👜 Ecobags'],['caneca','☕ Canecas/Copos'],['kit','🎁 Kits'],['outro','🎁 Outros']];
+const FILTRO_LABELS = [['todos','Todos'],['data','Datas Especiais 🎉'],['botton','🔘 Bottons'],['foto','📸 Fotos'],['ecobag','👜 Ecobags'],['caneca','☕ Canecas/Copos'],['kit','🎁 Kits'],['outro','🎁 Outros']];
 
 function escAttr(s){
   return String(s==null?'':s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
