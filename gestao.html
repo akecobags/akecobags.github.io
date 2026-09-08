@@ -470,7 +470,7 @@ body{font-family:'Inter',sans-serif;color:var(--tx);overflow-x:hidden;
           <option value="ecobag">👜 Ecobag</option>
           <option value="caneca">☕ Caneca/Copo</option>
           <option value="kit">🎁 Kit</option>
-          <option value="data">Data Especial 🎉</option>
+          <option value="data">🎉 Data Especial</option>
           <option value="outro">🎁 Outro</option>
         </select>
       </div>
@@ -1567,7 +1567,7 @@ async function toggleProdStatus(id){
 }
 
 function renderSite(){
-  const cats = [['todos','Todos'],['botton','🔘 Bottons'],['foto','📸 Fotos'],['ecobag','👜 Ecobags'],['caneca','☕ Canecas e Copos'],['kit','🎁 Kits'],['data','Datas Especiais 🎉'],['outro','🎁 Outros'],['arquivados','📦 Arquivados']];
+  const cats = [['todos','Todos'],['botton','🔘 Bottons'],['foto','📸 Fotos'],['ecobag','👜 Ecobags'],['caneca','☕ Canecas e Copos'],['kit','🎁 Kits'],['data','🎉 Datas Especiais'],['outro','🎁 Outros'],['arquivados','📦 Arquivados']];
   document.getElementById('site-filters').innerHTML = cats.map(([v,l]) =>
     `<button class="filter-chip ${siteFilter===v?'active':''}" onclick="setSiteFilter('${v}')">${l}</button>`
   ).join('');
