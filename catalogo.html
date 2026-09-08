@@ -254,8 +254,8 @@ function renderCatalogo(produtos){
   filtrar(currentFiltro, btnAtivo);
 }
 
-db.collection('ak_ecobags').doc('produtos').onSnapshot(doc=>{
-  const produtos = doc.exists ? (doc.data().items || []) : [];
+db.collection('ak_ecobags_produtos').onSnapshot(snapshot=>{
+  const produtos = snapshot.docs.map(d=>d.data());
   renderCatalogo(produtos);
 }, err=>{
   console.error('Erro ao carregar catálogo:', err);
