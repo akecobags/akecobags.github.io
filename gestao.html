@@ -899,6 +899,35 @@ async function saveCollection(name, arr){
   }
 }
 
+// ===== PRODUTOS: cada produto vira um documento separado no banco =====
+// (Antes todos os produtos ficavam juntos em um único "pacote" com limite de 1MB.
+// Com fotos, esse limite estourava fácil e produtos novos deixavam de salvar de verdade.
+// Agora cada produto tem seu próprio espaço, sem esse limite compartilhado.)
+async function saveProdutoDoc(p){
+  localStorage.setItem('ak_produtos', JSON.stringify(produtos));
+  if(firebaseOK){
+    try{
+      await db.collection('ak_ecobags_produtos').doc(p.id).set(p);
+      showSyncStatus('☁️ Salvo na nuvem', true);
+    }catch(e){
+      console.error(e);
+      showSyncStatus('⚠️ Erro ao sincronizar este produto — salvo só neste aparelho', false);
+      alert('⚠️ Não foi possível salvar este produto na nuvem (talvez a foto esteja muito grande). Ele ficou salvo só neste aparelho — tente usar uma foto menor.');
+    }
+  }
+}
+async function deleteProdutoDoc(id){
+  localStorage.setItem('ak_produtos', JSON.stringify(produtos));
+  if(firebaseOK){
+    try{
+      await db.collection('ak_ecobags_produtos').doc(id).delete();
+    }catch(e){
+      console.error(e);
+      showSyncStatus('⚠️ Erro ao sincronizar exclusão', false);
+    }
+  }
+}
+
 async function saveConfig(){
   localStorage.setItem('ak_config', JSON.stringify(config));
   if(firebaseOK){
@@ -915,15 +944,30 @@ async function saveConfig(){
 async function loadAllData(){
   if(firebaseOK){
     try{
-      const names = ['produtos','pedidos','clientes','estoque','financeiro','fornecedores','perdas'];
+      const names = ['pedidos','clientes','estoque','financeiro','fornecedores','perdas'];
       const results = await Promise.all(names.map(n => db.collection('ak_ecobags').doc(n).get()));
-      produtos     = results[0].exists ? results[0].data().items : [];
-      pedidos      = results[1].exists ? results[1].data().items : [];
-      clientes     = results[2].exists ? results[2].data().items : [];
-      estoque      = results[3].exists ? results[3].data().items : [];
-      financeiro   = results[4].exists ? results[4].data().items : [];
-      fornecedores = results[5].exists ? results[5].data().items : [];
-      perdas       = results[6].exists ? results[6].data().items : [];
+      pedidos      = results[0].exists ? results[0].data().items : [];
+      clientes     = results[1].exists ? results[1].data().items : [];
+      estoque      = results[2].exists ? results[2].data().items : [];
+      financeiro   = results[3].exists ? results[3].data().items : [];
+      fornecedores = results[4].exists ? results[4].data().items : [];
+      perdas       = results[5].exists ? results[5].data().items : [];
+
+      // Produtos: cada um é um documento separado (evita o limite de 1MB do "pacote" único)
+      const prodSnap = await db.collection('ak_ecobags_produtos').get();
+      if(!prodSnap.empty){
+        produtos = prodSnap.docs.map(d=>d.data());
+      } else {
+        // Migração automática: se ainda não existe nada na estrutura nova,
+        // mas existem produtos salvos no formato antigo, copia eles pra nova estrutura uma única vez.
+        const oldDoc = await db.collection('ak_ecobags').doc('produtos').get();
+        const oldItems = oldDoc.exists ? (oldDoc.data().items || []) : [];
+        produtos = oldItems;
+        for(const p of oldItems){
+          try{ await db.collection('ak_ecobags_produtos').doc(p.id).set(p); }
+          catch(e){ console.error('Falha ao migrar produto', p.id, e); }
+        }
+      }
 
       // Busca da config (meta mensal) isolada: se falhar, NÃO pode apagar os dados acima que já carregaram certinho
       try{
@@ -938,7 +982,6 @@ async function loadAllData(){
         db.collection('ak_ecobags').doc(n).onSnapshot(doc => {
           if(!doc.exists) return;
           const items = doc.data().items || [];
-          if(n==='produtos') produtos = items;
           if(n==='pedidos') pedidos = items;
           if(n==='clientes') clientes = items;
           if(n==='estoque') estoque = items;
@@ -948,6 +991,10 @@ async function loadAllData(){
           renderAll();
         }, err => console.error(`Erro no listener de ${n}:`, err));
       });
+      db.collection('ak_ecobags_produtos').onSnapshot(snapshot => {
+        produtos = snapshot.docs.map(d=>d.data());
+        renderAll();
+      }, err => console.error('Erro no listener de produtos:', err));
       db.collection('ak_ecobags').doc('config').onSnapshot(doc => {
         if(!doc.exists) return;
         config = Object.assign({metaMensal:3000}, doc.data());
@@ -1014,7 +1061,7 @@ async function importarBackup(event){
     perdas       = Array.isArray(dados.perdas) ? dados.perdas : [];
     if(dados.config) config = Object.assign({metaMensal:3000}, dados.config);
 
-    await saveCollection('produtos', produtos);
+    for(const p of produtos){ await saveProdutoDoc(p); }
     await saveCollection('pedidos', pedidos);
     await saveCollection('clientes', clientes);
     await saveCollection('estoque', estoque);
@@ -1483,7 +1530,7 @@ async function saveProduto(){
   } else {
     produtos.push(data);
   }
-  await saveCollection('produtos', produtos);
+  await saveProdutoDoc(data);
   closeModal('modal-prod');
   renderSite();
   renderDashboard();
@@ -1492,7 +1539,7 @@ async function saveProduto(){
 async function delProduto(id){
   if(!confirm('Excluir este produto? Essa ação apaga a foto e todas as informações e não pode ser desfeita.\n\nSe é só uma pausa na produção, use o botão de Arquivar em vez de excluir.')) return;
   produtos = produtos.filter(p=>p.id!==id);
-  await saveCollection('produtos', produtos);
+  await deleteProdutoDoc(id);
   renderSite();
   renderDashboard();
 }
@@ -1500,7 +1547,7 @@ async function delProduto(id){
 async function toggleArquivarProduto(id){
   const p = produtos.find(x=>x.id===id);
   p.arquivado = !p.arquivado;
-  await saveCollection('produtos', produtos);
+  await saveProdutoDoc(p);
   renderSite();
   renderDashboard();
 }
@@ -1515,7 +1562,7 @@ async function toggleProdStatus(id){
   const ordem = ['disp','person','esg'];
   const atual = ordem.indexOf(p.status);
   p.status = ordem[(atual+1) % ordem.length] || 'disp';
-  await saveCollection('produtos', produtos);
+  await saveProdutoDoc(p);
   renderSite();
 }
 
