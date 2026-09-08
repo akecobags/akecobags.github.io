@@ -882,7 +882,7 @@ function showSyncStatus(msg, ok){
   el.className = 'sync-status ' + (ok ? 'sync-ok' : 'sync-err');
   el.style.display = 'block';
   clearTimeout(window._syncTimeout);
-  window._syncTimeout = setTimeout(()=>{ el.style.display='none'; }, 2200);
+  window._syncTimeout = setTimeout(()=>{ el.style.display='none'; }, ok ? 2200 : 8000);
 }
 
 async function saveCollection(name, arr){
@@ -910,9 +910,8 @@ async function saveProdutoDoc(p){
       await db.collection('ak_ecobags_produtos').doc(p.id).set(p);
       showSyncStatus('☁️ Salvo na nuvem', true);
     }catch(e){
-      console.error(e);
-      showSyncStatus('⚠️ Erro ao sincronizar este produto — salvo só neste aparelho', false);
-      alert('⚠️ Não foi possível salvar este produto na nuvem (talvez a foto esteja muito grande). Ele ficou salvo só neste aparelho — tente usar uma foto menor.');
+      console.error('Erro ao salvar produto na nuvem:', e);
+      showSyncStatus('⚠️ Salvo só neste aparelho: ' + (e.message || 'erro desconhecido'), false);
     }
   }
 }
